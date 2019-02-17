@@ -1,2 +1,7 @@
 ---
 # handlers file for ansible-openswan
+handlers:
+    - name: reload sysctl kernel parameters
+      sysctl:
+        reload: yes
+      listen: "reload sysctl"

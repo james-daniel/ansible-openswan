@@ -1,0 +1,24 @@
+- name: update repositories cache and install latest openswan, but don't start it
+  apt:
+    name: openswan
+    update_cache: yes
+  environment:
+    RUNLEVEL: 1
+
+- name: install lsof utility
+  apt:
+    name: lsof
+
+- name: kernel - enable ipv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+
+- name: kernel - disable ipv4 rx/tx of icmp redirects
+  sysctl:
+    name: "{{ params }}"
+    value: 0
+  vars:
+    params:
+      - net.ipv4.conf.all.accept_redirects
+      - net.ipv4.conf.all.send_redirects
