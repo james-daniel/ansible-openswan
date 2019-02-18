@@ -1,0 +1,41 @@
+---
+# post_tasks file for ansible-openswan
+post_tasks:
+ - name: check if sysctl reload is pending
+   stat: path=/var/run/sysctl_reload.pending
+   register: sysctl_reload
+ - name: reload sysctl parameters from /etc/sysctl.conf
+   block:
+     - service: name=myservice state=restarted
+       register: restart_status
+       until: restart_status|success
+       retries: 30
+       delay: 5
+     - file: path=/var/run/sysctl_reload.pending state=absent
+   when: sysctl_reload.stats.exists
+
+ - name: check if openswan reload is pending
+   stat: path=/var/run/openswan_reload.pending
+   register: openswan_reload
+ - name: reload openswan service
+   block:
+     - service: name=openswan state=restarted
+       register: restart_status
+       until: restart_status|success
+       retries: 30
+       delay: 5
+     - file: path=/var/run/openswan_reload.pending state=absent
+   when: openswan_reload.stats.exists
+
+ - name: check if iptables ruleset reload is pending
+   stat: path=/var/run/sysctl_reload.pending
+   register: sysctl_reload
+ - name: reload sysctl parameters from /etc/sysctl.conf
+   block:
+     - service: name=myservice state=restarted
+       register: restart_status
+       until: restart_status|success
+       retries: 30
+       delay: 5
+     - file: path=/var/run/myservice_restart.pending state=absent
+   when: myservice_restart.stats.exists
