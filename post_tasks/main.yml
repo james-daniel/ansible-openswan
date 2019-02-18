@@ -6,12 +6,12 @@ post_tasks:
    register: sysctl_reload
  - name: reload sysctl parameters from /etc/sysctl.conf
    block:
-     - service: name=myservice state=restarted
-       register: restart_status
-       until: restart_status|success
-       retries: 30
-       delay: 5
-     - file: path=/var/run/sysctl_reload.pending state=absent
+     - sysctl:
+       reload: yes
+     register: reload_status
+     until: reload_status|success
+     retries: 30
+     delay: 5
    when: sysctl_reload.stats.exists
 
  - name: check if openswan reload is pending
@@ -27,15 +27,15 @@ post_tasks:
      - file: path=/var/run/openswan_reload.pending state=absent
    when: openswan_reload.stats.exists
 
- - name: check if iptables ruleset reload is pending
-   stat: path=/var/run/sysctl_reload.pending
-   register: sysctl_reload
- - name: reload sysctl parameters from /etc/sysctl.conf
+ - name: check if iptables ruleset restore is pending
+   stat: path=/var/run/iptables_restore.pending
+   register: iptables_restore
+ - name: restore iptables parameters from /etc/iptables/openswan.rules
    block:
-     - service: name=myservice state=restarted
-       register: restart_status
-       until: restart_status|success
+     - shell: /sbin/iptables-restore /etc/openswan.rules
+       register: restore_status
+       until: restore_status|success
        retries: 30
        delay: 5
-     - file: path=/var/run/myservice_restart.pending state=absent
-   when: myservice_restart.stats.exists
+     - file: path=/var/run/iptables_restore.pending state=absent
+   when: iptables_restore.stats.exists
