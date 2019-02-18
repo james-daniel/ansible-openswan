@@ -9,16 +9,15 @@
   apt:
     name: lsof
 
-- name: kernel - enable ipv4 forwarding
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: 1
-
-- name: kernel - disable ipv4 rx/tx of icmp redirects
-  sysctl:
-    name: "{{ params }}"
-    value: 0
-  vars:
-    params:
-      - net.ipv4.conf.all.accept_redirects
-      - net.ipv4.conf.all.send_redirects
+- name: kernel - disable ipv4 rx/tx of icmp redirects; enable fwd
+  blockinfile:
+    path: /etc/sysctl.conf
+    block:
+      {{ item.param }} = {{ item.val }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
+    with_items:
+    - { parameter: net.ipv4.ip_forward, val: 1 }
+    - { parameter: net.ipv4.conf.all.accept_redirects, val: 0 }
+    - { parameter: net.ipv4.conf.all.send_redirects, val: 0 }
+  notify:
+    - schedule reload of sysctl kernel parameters
