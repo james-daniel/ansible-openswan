@@ -1,0 +1,9 @@
+# Empty iptables rule file
+*filter
+:INPUT ACCEPT [0:0]
+-A INPUT -p udp --dport 500 -j ACCEPT
+-A INPUT -p udp --dport 4500 -j ACCEPT
+-A INPUT -p tcp --dport 4500 -j ACCEPT
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
