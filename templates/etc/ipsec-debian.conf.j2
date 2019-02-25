@@ -1,0 +1,50 @@
+## general configuration parameters ##
+config setup
+
+# enable verbose ipsec logging
+plutodebug=all
+plutostderrlog=/var/log/pluto.log
+protostack=netkey
+nat_traversal=yes
+virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.25.0.0/12
+
+## disable opportunistic encryption in Debian ##
+## Note: this is a separate declaration statement ##
+{% if os == 'debian' %}
+include /etc/ipsec.d/examples/no_oe.conf
+{% elif os == 'centos|redhat'%}
+oe=off
+{% endif %}
+
+## connection definition in Debian ##
+conn demo-connection-debian
+authby=secret
+auto=start
+{% if 'centos|redhat' in os %}
+ike=3des-md5
+{% endif %}
+
+
+## phase 1 ##
+keyexchange=ike
+
+## phase 2 ##
+{% if 'debian in os'}
+esp=3des-md5
+{% elif 'redhat|centos' in os %}
+phase2=esp
+phase2alg=3des-md5
+compress=no
+{% endif %}
+
+pfs=yes
+type=tunnel
+left=
+leftsourceip=
+leftsubnet=/netmask
+
+## for direct routing ##
+leftsubnet=/32
+leftnexthop=%defaultroute
+right=
+rightsubnet=/netmask
