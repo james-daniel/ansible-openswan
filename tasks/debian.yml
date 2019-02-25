@@ -21,3 +21,5 @@
     - { parameter: net.ipv4.conf.all.send_redirects, val: 0 }
   notify:
     - schedule reload of sysctl kernel parameters
+
+- name: configure openswan
