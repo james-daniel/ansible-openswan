@@ -6,4 +6,5 @@
 -A INPUT -p tcp --dport 4500 -j ACCEPT
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+-A POSTROUTING -s {{ site-a-private-subnet }} -d {{ site-b-private-subnet }} -j SNAT --to {{ site-a-outside-nat-ip }}
 COMMIT
