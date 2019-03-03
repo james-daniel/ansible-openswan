@@ -1,0 +1,28 @@
+##
+conn ipsec-s2s-conn
+  authby=secret
+  type=tunnel
+  auto=start
+  pfs=yes
+
+  left=%defaultroute
+  leftid={{ leftGatewayID }}
+  leftsubnet= {{ leftSubnetCIDR }}
+  leftnexthop=%defaultroute
+
+  right={{ rightGatewayID }}
+  rightsubnet={{ rightSubnetCIDR }}
+
+  {% if 'centos|redhat' in os %}
+  ike=3des-md5
+  {% endif %}
+  ## phase 1 ##
+  keyexchange=ike
+  ## phase 2 ##
+  {% if 'debian in os'}
+  esp=3des-md5
+  {% elif 'redhat|centos' in os %}
+  phase2=esp
+  phase2alg=3des-md5
+  compress=no
+  {% endif %}

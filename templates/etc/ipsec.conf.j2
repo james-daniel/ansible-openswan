@@ -1,0 +1,19 @@
+config setup
+	protostack=netkey
+	nat_traversal=yes
+	virtual_private=
+	oe=off
+include /etc/ipsec.d/*.conf
+
+
+## general configuration parameters ##
+config setup
+  # enable verbose ipsec logging
+  protostack=netkey
+  nat_traversal=yes
+  virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.25.0.0/12
+  {% if os == 'debian' %}
+  include /etc/ipsec.d/examples/no_oe.conf
+  {% elif os == 'centos|redhat'%}
+  oe=off
+  {% endif %}
