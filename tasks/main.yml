@@ -6,3 +6,57 @@
   with_first_found:
     - "{{ ansible_distribution }}.yml"
   tags: vars
+
+- name: update repositories cache and install latest openswan, but don't start it
+  apt:
+    name: openswan
+    update_cache: yes
+  environment:
+    RUNLEVEL: 1
+
+- name: install lsof utility
+  apt:
+    name: lsof
+
+- name: kernel - disable ipv4 rx/tx of icmp redirects; enable fwd
+  blockinfile:
+    path: /etc/sysctl.conf
+    block:
+      {{ item.param }} = {{ item.val }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
+    with_items:
+    - { parameter: net.ipv4.ip_forward, val: 1 }
+    - { parameter: net.ipv4.conf.all.accept_redirects, val: 0 }
+    - { parameter: net.ipv4.conf.all.send_redirects, val: 0 }
+  notify:
+    - schedule reload of sysctl kernel parameters
+
+- name: configure openswan connection information
+  template:
+    src: etc/ipsec.d/ipsec-s2s-conn.conf.j2
+    dest: /etc/init.d/ipsec-s2s-conn.conf
+    owner: root
+    group: root
+    mode: 0755
+
+- name: configure openswan psk secrets information
+  template:
+    src: etc/ipsec.d/ipsec-s2s-secrets.conf.j2
+    dest: /etc/init.d/ipsec-s2s-secrets.conf
+    owner: root
+    group: root
+    mode: 0755
+
+- name: configure openswan ipsec init information
+  template:
+    src: etc/ipsec.conf.j2
+    dest: /etc/ipsec.conf
+    owner: root
+    group: root
+    mode: 0755
+
+- name: verify openswan ipsec started and enabled
+  service:
+  name: ipsec
+    state: started
+    enabled: yes
