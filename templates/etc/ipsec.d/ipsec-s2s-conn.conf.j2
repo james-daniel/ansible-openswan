@@ -5,13 +5,18 @@ conn ipsec-s2s-conn
   auto=start
   pfs=yes
 
-  left=%defaultroute
-  leftid={{ leftGatewayID }}
+  # SITE A VPN SPEC
+  left={{ leftGatewayIDOutside }}
+  leftsourceip={{ leftGatewayIdInside}}
   leftsubnet= {{ leftSubnetCIDR }}
   leftnexthop=%defaultroute
 
-  right={{ rightGatewayID }}
+  # SITE B VPN SPEC
+  right={{ rightGatewayIDOutside }}
+  rightsourceip={{ rightGatewayIdInside}}
   rightsubnet={{ rightSubnetCIDR }}
+  rightnexthop=%defaultroute
+
 
   {% if 'centos|redhat' in os %}
   ike=3des-md5
